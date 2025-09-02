@@ -1,13 +1,11 @@
 from dash import html, dcc, Input, Output
 from processing import process_image
-from PIL import Image
+from utils.callbacks import callback_display_selected_data, callback_display_image_on_hover, update_interaction_mode, \
+    clientside_callback
 
-import io
-import base64
 import dash
 import dash_bootstrap_components as dbc
 import plotly.express as px
-import numpy as np
 
 
 TEXT = "<br>Theory.</br>Lorem Ipsum is simply dummy text of the printing and typesetting industry. " \
@@ -26,22 +24,6 @@ original image.
 
 
 images, imgs, idx_mat, idx_mat_shifted, grid_data = process_image('assets/images/brain.jpg')
-
-
-# Convert image files to base64 for web
-def encode_image(file_path):
-    with open(file_path, 'rb') as f:
-        return base64.b64encode(f.read()).decode()
-
-
-# Convert NumPy image to base64 string
-def encode_array_to_base64(img_array):
-    img = Image.fromarray(np.uint8(img_array), mode='L')
-    buff = io.BytesIO()
-    img.save(buff, format="PNG")
-    encoded = base64.b64encode(buff.getvalue()).decode("utf-8")
-    return f"data:image/ppg;base64,{encoded}"
-
 
 external_scripts = [
     "https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js"
@@ -153,84 +135,8 @@ app.layout = html.Div(
     style={"maxWidth": "1000px", "margin": "0 auto"}
 )
 
-
-# display selected data
-@app.callback(
-    Output('selected-image', 'src'),
-    Input('heatmap', 'selectedData')
-)
-def display_selected_data(selectedData):
-    if selectedData is None:
-        return "assets/images/placeholder.png"
-    points = selectedData['range']
-    xs = list(map(int, points['x']))
-    ys = list(map(int, points['y']))
-    idx_chunk = idx_mat_shifted[min(ys):max(ys), min(xs):max(xs)]
-
-    images_chunk = images[:, :, idx_chunk.flatten()]
-    chunk = images_chunk.sum(axis=-1)
-
-    # func
-    res = (chunk - chunk.min(axis=(0, 1))) / (chunk.max(axis=(0, 1)) - chunk.min(axis=(0, 1)))
-    res = res * (255 - 0) + 0
-
-    img = (res).astype(np.uint8)
-    pil_img = Image.fromarray(img).resize((200, 200))
-    buf = io.BytesIO()
-    pil_img.save(buf, format='PNG')
-    img_data = base64.b64encode(buf.getvalue()).decode()
-
-    return f"data:image/png;base64,{img_data}"
-
-
-# Dummy image generator: Create an image from a subgrid
-def generate_image_from_subgrid(subgrid):
-    img = (255 * subgrid).astype(np.uint8)
-    pil_img = Image.fromarray(img).resize((200, 200))
-    buf = io.BytesIO()
-    pil_img.save(buf, format='PNG')
-    return base64.b64encode(buf.getvalue()).decode()
-
-
-@app.callback(
-    Output('interaction-mode', 'data'),
-    Input('heatmap', 'relayoutData')
-)
-def update_interaction_mode(relayoutData):
-    if relayoutData is None:
-        return 'hover'
-    # Detect when selection is happening
-    keys = relayoutData.keys()
-    if any(k.startswith('xaxis.range') or k.startswith('yaxis.range') for k in keys):
-        return 'selecting'
-    return 'hover'
-
-
-@app.callback(
-    Output('hover-image', 'src'),
-    Input('heatmap', 'hoverData'),
-    Input('interaction-mode', 'data'),
-)
-def display_image_on_hover(hoverData, mode):
-    if mode != 'hover' or not hoverData:
-        return None
-    point = hoverData['points'][0]
-    i = point['y']
-    j = point['x']
-    idx = idx_mat[i, j]
-    return encode_array_to_base64(imgs[:, :, idx])
-
-
-app.clientside_callback(
-    """
-    function(n, data) {
-        return "";
-    }
-    """,
-    Output("hover-image", "src", allow_duplicate=True),
-    Input("hover-reset", "data"),
-    prevent_initial_call=True
-)
+callback_display_selected_data(idx_mat_shifted, images)
+callback_display_image_on_hover(idx_mat, imgs)
 
 
 if __name__ == '__main__':
