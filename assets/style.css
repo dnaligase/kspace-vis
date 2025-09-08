@@ -1,7 +1,7 @@
 .btn.btn-skip {
     width: 100%;
     height: 38px;
-    margin: 1px;
+    margin: 0px auto;
     padding: 6px;
     border-radius: 5px;
     color: #3A82FF;
@@ -25,7 +25,19 @@
 
 #hover-image:not([src]),
 #hover-image[src=""] {
-  border: none; /* Removes any default or applied border */
-  outline: none; /* Removes any default outline, often seen on linked images */
-  visibility: hidden; /* Makes the element invisible while retaining its space */
+    border: none; /* Removes any default or applied border */
+    outline: none; /* Removes any default outline, often seen on linked images */
+    visibility: hidden; /* Makes the element invisible while retaining its space */
+}
+
+.column {
+    text-align: justify;
+    text-justify: inter-character;
+}
+
+figcaption {
+    background-color: #FAFAFA;
+    border-radius: 5px;
+    margin: 5px auto;
+    width: 70%
 }

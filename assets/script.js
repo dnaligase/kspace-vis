@@ -13,10 +13,9 @@ waitForElement(".container", (box) => {
   const follower = document.querySelector("#hover-image");
 
   gsap.set(follower, {
-    xPercent: -110,
-    yPercent: -125,
+    xPercent: -90,
+    yPercent: -120,
     scale: 0.8,
-    opacity: .9
   });
 
   const xTo = gsap.quickTo(follower, "x", { duration: 0.3, ease: "power2" });

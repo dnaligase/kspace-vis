@@ -1,4 +1,4 @@
-from dash import html, dcc, Input, Output
+from dash import html, dcc
 from processing import process_image
 from utils.callbacks import callback_display_selected_data, callback_display_image_on_hover, update_interaction_mode, \
     clientside_callback
@@ -8,18 +8,33 @@ import dash_bootstrap_components as dbc
 import plotly.express as px
 
 
-TEXT = "<br>Theory.</br>Lorem Ipsum is simply dummy text of the printing and typesetting industry. " \
-       "Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a " \
-       "galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but " \
-       "also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s " \
-       "with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop " \
-       "publishing software like Aldus PageMaker including versions of Lorem Ipsum."
+TEXT_1 = """
+Many students get frightened the first time they encounter k-space. An MRI scanner doesn’t “see” body structures \
+directly — it collects signals as frequencies from proton spins, stored as pixels in a coordinate grid. At first it \
+looks random, but this project is a distilled visualization of how those abstract pixels (amplitude, phase, spatial \
+frequency) combine to form the final image.
+
+🎯 **Goal.**
+Although many k-space exploration tools exist, they don't offer a clear intuition for how these “pixels” \
+translate into the final image. This minimal visualization is designed for a clean, focused understanding of \
+how each k-space point (a spatial frequency component, or "wave") — or groups of them — contributes to the \
+reconstructed image.
+"""
+
+TEXT_2 = """
+✍️ **Note.**
+A single k-space pixel does not correspond to a single pixel in the final MRI image. Instead, each k-space point \
+corresponds to all the pixels in the image by encoding information about:
++ Amplitude → how strongly it contributes to the image (intensity).
++ Phase → how the wave pattern is shifted in k-space.
++ Spatial frequency → the repeating “bar” pattern it represents, which becomes visible when hovering over pixels in \
+the demo below.
+"""
 
 TEXT_markdown = """
-**Visual demonstration.** Interact with visualization demo above. Hover over each pixel to display its respective
-spatial frequency and phase. Select the set of pixels to see their sum; see how their sum results in image formation by 
-simply adding spatial patterns together. The more area you cover with selection tool, the more you reconstruct the 
-original image.
+**Visual demonstration.** Interact with the demo above: hover over any pixel to reveal its spatial frequency and phase.\
+ Select multiple pixels to see their patterns add up — each one contributing to the image. The larger the area you \
+ select, the closer the sum comes to reconstructing the original image.
 """
 
 
@@ -31,6 +46,7 @@ external_scripts = [
 
 app = dash.Dash(external_scripts=external_scripts,
                 external_stylesheets=[dbc.themes.BOOTSTRAP])
+app.title = "k-space"
 
 fig = px.imshow(grid_data,
                 labels=dict(x="Frequency", y="Phase", color="Magnitude"),
@@ -43,7 +59,7 @@ fig.update_layout(
     yaxis_visible=True,
     hovermode="closest",
     dragmode="select",
-    newselection=dict(line=dict(color='white')),
+    newselection=dict(line=dict(color='white', width=2)),
     activeselection=dict(fillcolor='white', opacity=.3),
     barcornerradius=5,
     coloraxis_showscale=False,
@@ -56,43 +72,47 @@ fig.update_yaxes(showticklabels=False)
 app.layout = html.Div(
     [
         html.H1("MRI to K-Space. K-Space to Image.", style={
-            'fontFamily': 'Arial, medium',  # or your preferred font
+            'fontFamily': 'Inter, medium',
             'fontSize': '32px',
             'textAlign': 'center',
             'marginTop': '50px'
         }),
         dbc.Row(
                 [
-                    dbc.Col([html.P(TEXT), html.Div(
-                        html.Img(
-                            src="assets/images/scheme.png",
-                            style={"width": "40%"}),
-                        style={"textAlign": "center"}   # centers the image
+                    dbc.Col([html.P(dcc.Markdown(TEXT_1), className="column"), html.Div(
+                        html.Figure
+                            ([html.Img(
+                                src="assets/images/scheme.png",
+                                style={"width": "40%"}),
+                            html.Figcaption(dcc.Markdown("**Figure 1.** Stacking wave patterns."))
+                        ]),
+                        style={"textAlign": "center", 'textJustify': 'inter-character'}   # centers the image
                              )]),
                     dbc.Col(
                         [
-                            html.P(TEXT),
-                            html.Div(dbc.Button(children="Skip to Demo...",
-                                                style={"position": "relative"},
-                                                className="btn btn-skip",
-                                                n_clicks=0,
-                                                href='#section-demo',
-                                                external_link=True
-                                                ),
-                                     style={'width': 150})
+                            html.P(dcc.Markdown(TEXT_2), className="column"),
+                            html.Center(
+                                html.Div(dbc.Button(children="Skip to Demo...",
+                                                    className="btn btn-skip",
+                                                    n_clicks=0,
+                                                    href='#section-demo',
+                                                    external_link=True
+                                                    ),
+                                         style={'width': 200})
+                            )
                         ]
                     ),
                 ]
             ),
         html.Br(),
         html.Hr(),
-        html.H1("From Fourier Space to Image.",
+        html.H1("From Fourier Space to Image",
                 id='section-demo',
                 style={
-                    'fontFamily': 'Arial, medium',  # or your preferred font
+                    'fontFamily': 'Inter, medium',  # or your preferred font
                     'fontSize': '26px',
                     'textAlign': 'center',
-                    'marginTop': '50px'
+                    'marginTop': '50px',
                 }),
         html.Div(className='container',
                  children=[
@@ -109,14 +129,14 @@ app.layout = html.Div(
                                                           'display': 'block',
                                                           'borderRadius': '10px',
                                                           }),
-                     html.Div(html.Img(id='hover-image', style={'width': '8%',
+                     html.Div(html.Img(id='hover-image', style={'width': '12%',
                                           'borderRadius': '10px',
                                           'border': '4px solid black',
                                           'top': '0',
                                           'left': '0',
                                           'position': 'absolute',
                                           'pointerEvents': 'none'
-                                                   })),
+                                                                })),
                  ],
                  style={
                         "display": "flex",
@@ -124,7 +144,7 @@ app.layout = html.Div(
                         "alignItems": "center",      # align vertically
                         "gap": "50px",               # space between graph and image
                         "position": "relative",
-                        # "overflow": "hidden",
+                        'fontFamily': 'Inter, regular'
                  }
                  ),
         dcc.Markdown(TEXT_markdown),
