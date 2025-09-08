@@ -1,12 +1,16 @@
 from dash import html, dcc
 from processing import process_image
+from dotenv import load_dotenv
 from utils.callbacks import callback_display_selected_data, callback_display_image_on_hover, update_interaction_mode, \
     clientside_callback
 
+import os
 import dash
 import dash_bootstrap_components as dbc
 import plotly.express as px
 
+
+load_dotenv()
 
 TEXT_1 = """
 Many students get frightened the first time they encounter k-space. An MRI scanner doesn’t “see” body structures \
@@ -47,6 +51,7 @@ external_scripts = [
 app = dash.Dash(external_scripts=external_scripts,
                 external_stylesheets=[dbc.themes.BOOTSTRAP])
 app.title = "k-space"
+server = app.server
 
 fig = px.imshow(grid_data,
                 labels=dict(x="Frequency", y="Phase", color="Magnitude"),
@@ -148,7 +153,21 @@ app.layout = html.Div(
                  }
                  ),
         dcc.Markdown(TEXT_markdown),
-
+        dcc.Markdown("If you liked the visualization idea, you can:"),
+        dbc.Button(children=html.Img(src="https://cdn.buymeacoffee.com/buttons/v2/arial-yellow.png",
+                                     style={
+                                         "width": "175px",
+                                              }),
+                   href=os.getenv("BMC_URL"),
+                   target="_blank",
+                   # className="btn btn.btn-buy",
+                   style={"background-color": "transparent",
+                          "padding": "0px",
+                          "border-color": "black",
+                          "border-radius": "8px"
+                          }
+                   ),
+        html.Div(style={"height": "25px"}),
         dcc.Store(id='interaction-mode', data='hover'),
         dcc.Store(id="hover-reset")
     ],
@@ -160,4 +179,4 @@ callback_display_image_on_hover(idx_mat, imgs)
 
 
 if __name__ == '__main__':
-    app.run(debug=True, host="0.0.0.0", port=8931)
+    app.run(debug=False)

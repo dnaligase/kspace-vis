@@ -3,5 +3,7 @@ dash_bootstrap_components==2.0.4
 numpy==2.3.2
 Pillow==11.3.0
 plotly==5.24.1
+python-dotenv==1.1.1
 scipy==1.16.1
 tqdm==4.66.4
+pandas
