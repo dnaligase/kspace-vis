@@ -20,16 +20,17 @@ def process_image(path: str):
 
     kl = list(product(np.arange(len(img)), repeat=2))
     coefs = np.zeros(len(kl), dtype=np.complex64)
-    images = np.zeros((rows, cols, len(kl)), dtype=np.float32)
-
+    # images = np.zeros((rows, cols, len(kl)), dtype=np.float32)
+    images = np.memmap("images.dat", dtype=np.float32, mode="w+",
+                       shape=(rows, cols, len(kl)))
     i = np.arange(rows).reshape(-1, 1)
     j = np.arange(cols).reshape(1, -1)
 
-    for _, (k, l) in enumerate(tqdm(kl, desc='Applying manual DFT...')):
+    for n, (k, l) in enumerate(tqdm(kl, desc='Applying manual DFT...')):
         exponent = -2j * np.pi * ((k * i / rows) + (l * j / cols))
         exp = np.exp(exponent)
-        coefs[_] = np.sum(img * exp)
-        images[:, :, _] = np.real(coefs[_] * exp)
+        coefs[n] = np.sum(img * exp)
+        images[:, :, n] = np.real(coefs[n] * exp)
 
     y = fft2(img)
     fourier_im = fftshift(y)
