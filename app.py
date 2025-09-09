@@ -52,16 +52,19 @@ app = dash.Dash(external_scripts=external_scripts,
                 external_stylesheets=[dbc.themes.BOOTSTRAP],
                 meta_tags=[
                     {"name": "viewport", "content": "width=device-width, initial-scale=1"},
+                    {"name": "title", "content": "k-Space to MRI Image — Distilled Visualization"},
                     {"name": "description",
-                     "content": "Distilled visualization: how k-space frequencies reconstruct MRI images."},
+                     "content": "Interactive demo showing how spatial frequencies combine to form MRI images."},
                     {"name": "author", "content": "Georgy Gritsenko"},
                     {"property": "og:title", "content": "k-Space to MRI Image — Distilled Visualization"},
                     {"property": "og:description",
                      "content": "Interactive demo showing how spatial frequencies combine to form MRI images."},
                     {"property": "og:type", "content": "website"},
+                    {"property": "og:image", "content": "assets/images/logo.png"},
                     {"name": "twitter:title", "content": "k-Space to MRI Image — Distilled Visualization"},
                     {"name": "twitter:description",
                      "content": "Interactive demo: hover over k-space pixels and see how images form."},
+                    {"name": "twitter:image", "content": "assets/images/logo.png"}
                 ],
                 title="k-Space to MRI Image — Distilled Visualization",)
 app.title = "k-space"
