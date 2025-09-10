@@ -31,14 +31,15 @@ A single k-space pixel does not correspond to a single pixel in the final MRI im
 corresponds to all the pixels in the image by encoding information about:
 + Amplitude → how strongly it contributes to the image (intensity).
 + Phase → how the wave pattern is shifted in k-space.
-+ Spatial frequency → the repeating “bar” pattern it represents, which becomes visible when hovering over pixels in \
-the demo below.
++ Spatial frequency → the repeating “stripe” pattern it represents, which becomes visible when hovering over pixels in \
+the demo below. In MRI, the striped pattern is implicitly obtained through the action of gradient coils.
 """
 
 TEXT_markdown = """
 **Visual demonstration.** Interact with the demo above: hover over any pixel to reveal its spatial frequency and phase.\
  Select multiple pixels to see their patterns add up — each one contributing to the image. The larger the area you \
- select, the closer the sum comes to reconstructing the original image.
+ select, the closer the sum comes to reconstructing the original image. Note, how the brightest pixel in the center \
+ encodes the information about average image intensity. 
 """
 
 
